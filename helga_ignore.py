@@ -1,18 +1,20 @@
-from helga import settings
+from helga import log, settings
 from helga.plugins import command, preprocessor
 
 
 USAGE = 'helga ignore (list|(add|remove) <nick>)'
 
-
 # Set of ignored nicks
 ignored = set()
+
+logger = log.getLogger(__name__)
 
 
 def ignore_preprocessor(channel, nick, message):
     global ignored
 
     if nick in ignored:
+        logger.info('Ignored message from %s', nick)
         message = u''
 
     return channel, nick, message
@@ -39,11 +41,13 @@ def ignore_command(client, channel, nick, message, cmd, args):
             return "I'm already ignoring {0}".format(ignore_nick)
 
         ignored.add(ignore_nick)
+        logger.info('Added %s to ignore list', ignore_nick)
         return "Added {0} to the ignore list".format(ignore_nick)
     elif args[0] == 'remove':
         ignore_nick = args[1]
 
         ignored.discard(ignore_nick)
+        logger.info('Removed %s from ignore list', ignore_nick)
         return "Removed {0} from the ignore list".format(ignore_nick)
 
     return 'Unrecognized ignore command: {0!r}. Usage: {1}'.format(args[0], USAGE)
