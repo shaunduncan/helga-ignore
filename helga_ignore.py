@@ -18,13 +18,16 @@ def ignore_preprocessor(channel, nick, message):
     return channel, nick, message
 
 
-def ignore_command(channel, nick, message, cmd, args):
+def ignore_command(client, channel, nick, message, cmd, args):
     global ignored
 
     if args[0] == 'list':
-        return 'Currently ignoring the following users: {0}'.format(', '.join(ignored))
+        return 'Currently ignoring the following users: {0}'.format(', '.join(sorted(ignored)))
     elif args[0] == 'add':
         ignore_nick = args[1]
+
+        if ignore_nick == client.nickname:
+            return "I'm sorry {0}, but I can't ignore myself".format(nick)
 
         if ignore_nick == nick:
             return "I'm sorry {0}, but you can't ignore yourself".format(nick)
@@ -55,4 +58,4 @@ def ignore(client, channel, nick, message, *args):
     if len(args) == 0:
         return ignore_preprocessor(channel, nick, message)
     elif len(args) == 2:
-        return ignore_command(channel, nick, message, *args)
+        return ignore_command(client, channel, nick, message, *args)
